@@ -26,16 +26,19 @@ function MineSweeperView({
   changeCeilState,
   onReset,
   openCeil,
+  openCeils,
   mines,
   status,
   seconds,
   onClose,
   difficulty,
+  openingCeil,
+  openingCeils,
 }) {
   const face = useRef(null);
-  const [mouseDown, setMouseDown] = useState(false);
+  const [mouseDownContent, setMouseDownContent] = useState(false);
   const [openOption, setOpenOption] = useState(null);
-
+  const [openBehavior, setOpenBehavior] = useState({ index: -1, behavior: '' });
   function remainMines() {
     return (
       mines -
@@ -44,7 +47,7 @@ function MineSweeperView({
     );
   }
   function statusFace() {
-    if (mouseDown) return <img alt="ohh" src={ohh} />;
+    if (mouseDownContent) return <img alt="ohh" src={ohh} />;
     switch (status) {
       case 'died':
         return <img alt="dead" src={dead} />;
@@ -54,17 +57,69 @@ function MineSweeperView({
         return <img alt="smile" src={smile} />;
     }
   }
-  function onMouseDown(e) {
+  function onMouseDownContent(e) {
+    if (e.button !== 0) return;
     if (
       face.current.contains(e.target) ||
       status === 'won' ||
       status === 'died'
     )
       return;
-    setMouseDown(true);
+    setMouseDownContent(true);
   }
-  function onMouseUp() {
-    setMouseDown(false);
+  function onMouseOverCeils(e) {
+    const index = Array.prototype.indexOf.call(
+      e.currentTarget.children,
+      e.target.closest('.mine__ceil'),
+    );
+    setOpenBehavior({
+      index,
+      behavior: openBehavior.behavior,
+    });
+  }
+  useEffect(() => {
+    const { index, behavior } = openBehavior;
+    switch (behavior) {
+      case 'single':
+        return openingCeil(index);
+      case 'multi':
+        return openingCeils(index);
+      default:
+        openingCeil(-1);
+    }
+  }, [openBehavior.index, openBehavior.behavior]);
+  function onMouseDownCeils(e) {
+    const index = Array.prototype.indexOf.call(
+      e.currentTarget.children,
+      e.target.closest('.mine__ceil'),
+    );
+    if (e.button === 2 && e.buttons === 2) {
+      changeCeilState(index);
+    }
+    if (e.button === 0 && e.buttons === 1) {
+      setOpenBehavior({
+        index,
+        behavior: 'single',
+      });
+    }
+    if (e.buttons === 3) {
+      setOpenBehavior({
+        index,
+        behavior: 'multi',
+      });
+    }
+  }
+  function onMouseUpCeils(e) {
+    const { behavior, index } = openBehavior;
+    if (behavior === 'single') {
+      openCeil(index);
+    } else if (behavior === 'multi') {
+      openCeils(index);
+    }
+    setOpenBehavior({ index: -1, behavior: '' });
+  }
+  function onMouseUpContent() {
+    setMouseDownContent(false);
   }
   function closeOption(e) {
     if (e.target.closest('.mine__top-bar__text')) return;
@@ -74,15 +129,15 @@ function MineSweeperView({
     if (openOption) setOpenOption(option);
   }
   useEffect(() => {
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('mouseup', onMouseUpContent);
     window.addEventListener('click', closeOption);
     return () => {
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mouseup', onMouseUpContent);
       window.removeEventListener('click', closeOption);
     };
   }, []);
   return (
-    <div className={className}>
+    <div className={className} onContextMenu={e => e.preventDefault()}>
       <div className="mine__drop-downs">
         <div
           style={{ visibility: openOption === 'game' ? 'visible' : 'hidden' }}
@@ -230,7 +285,7 @@ function MineSweeperView({
           Help
         </div>
       </div>
-      <section className="mine__content" onMouseDown={onMouseDown}>
+      <section className="mine__content" onMouseDown={onMouseDownContent}>
         <div className="mine__score-bar">
           <div className="mine__digits__outer">{remainMines()}</div>
           <div className="mine__face__outer">
@@ -241,12 +296,13 @@ function MineSweeperView({
           </div>
           <div className="mine__digits__outer">{seconds}</div>
         </div>
-        <div className="mine__content__inner">
-          <Ceils
-            ceils={ceils}
-            onLeftClickCeil={openCeil}
-            onRightClickCeil={changeCeilState}
-          />
+        <div
+          className="mine__content__inner"
+          onMouseDown={onMouseDownCeils}
+          onMouseOver={onMouseOverCeils}
+          onMouseUp={onMouseUpCeils}
+        >
+          <Ceils ceils={ceils} />
         </div>
       </section>
     </div>
@@ -255,14 +311,12 @@ function MineSweeperView({
 function getTextImg(index) {
   return [empty, open1, open2, open3, open4, open5, open6, open7, open8][index];
 }
-function Ceils({ ceils, onLeftClickCeil, onRightClickCeil }) {
+function Ceils({ ceils }) {
   function renderContent(ceil) {
-    const { state, minesAround } = ceil;
+    const { state, minesAround, opening } = ceil;
     switch (state) {
       case 'open':
         return <MinesAround mines={minesAround} />;
-      case 'unknown':
-        return <Question />;
       case 'flag':
         return <Flag />;
       case 'misflagged':
@@ -271,21 +325,17 @@ function Ceils({ ceils, onLeftClickCeil, onRightClickCeil }) {
         return <Mine />;
       case 'die':
         return <Die />;
+      case 'unknown':
+        return opening ? <QuestionOpen /> : <Question />;
       default:
-        return <Cover />;
+        return opening ? <CeilBackgroundOpen /> : <CeilBackgroundCover />;
     }
   }
 
   return ceils.map((ceil, index) => (
-    <Ceil
-      key={index}
-      state={ceil.state}
-      index={index}
-      onLeftClick={onLeftClickCeil}
-      onRightClick={onRightClickCeil}
-    >
+    <div key={index} className="mine__ceil">
       {renderContent(ceil)}
-    </Ceil>
+    </div>
   ));
 }
 
@@ -295,7 +345,6 @@ const Die = () => (
     <img alt="death" src={mineDeath} />
   </>
 );
-const Cover = () => <CeilBackgroundCover />;
 const MisFlagged = () => (
   <>
     <CeilBackgroundOpen />
@@ -320,30 +369,18 @@ const Question = () => (
     <img alt="question" src={question} />
   </>
 );
+const QuestionOpen = () => (
+  <>
+    <CeilBackgroundOpen />
+    <img alt="question" src={question} />
+  </>
+);
 const Mine = () => (
   <>
     <CeilBackgroundOpen />
     <img alt="mine" src={mine} />
   </>
 );
-function Ceil({ children, index, onLeftClick, onRightClick }) {
-  function _onLeftClick() {
-    onLeftClick(index);
-  }
-  function _onRightClick(e) {
-    e.preventDefault();
-    onRightClick(index);
-  }
-  return (
-    <div
-      className="mine__ceil"
-      onClick={_onLeftClick}
-      onContextMenu={_onRightClick}
-    >
-      {children}
-    </div>
-  );
-}
 
 const CeilBackgroundCover = styled.div`
   position: absolute;
@@ -363,7 +400,6 @@ const CeilBackgroundOpen = styled.div`
 `;
 
 export default styled(MineSweeperView)`
-  user-select: none;
   display: inline-block;
   .mine__drop-downs {
     position: absolute;

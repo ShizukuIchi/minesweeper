@@ -22,3 +22,12 @@ code {
   padding: 0;
   margin: 0;
 }
+
+#root {
+  background-color: rgb(22,22,22);
+  height: 100%;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
