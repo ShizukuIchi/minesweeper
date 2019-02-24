@@ -93,16 +93,14 @@ function MineSweeperView({
       e.currentTarget.children,
       e.target.closest('.mine__ceil'),
     );
-    if (e.button === 2 && e.buttons === 2) {
+    if (e.button === 2 && e.buttons === 2 && index >= 0) {
       changeCeilState(index);
-    }
-    if (e.button === 0 && e.buttons === 1) {
+    } else if (e.button === 0 && e.buttons === 1) {
       setOpenBehavior({
         index,
         behavior: 'single',
       });
-    }
-    if (e.buttons === 3) {
+    } else if (e.buttons === 3) {
       setOpenBehavior({
         index,
         behavior: 'multi',

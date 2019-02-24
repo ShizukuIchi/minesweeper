@@ -211,9 +211,11 @@ function MineSweeper({ defaultDifficulty, onClose }) {
     return safeCeils.length;
   }
   function openingCeil(index) {
+    if (['died', 'won'].includes(state.status)) return;
     dispatch({ type: 'OPENING_CEIL', payload: index });
   }
   function openingCeils(index) {
+    if (['died', 'won'].includes(state.status)) return;
     dispatch({ type: 'OPENING_CEILS', payload: index });
   }
   return (
