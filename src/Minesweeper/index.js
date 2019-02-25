@@ -182,9 +182,11 @@ function MineSweeper({ defaultDifficulty, onClose }) {
     if (state.status !== 'started') return;
     const indexes = getNearIndexes(index, state.rows, state.columns);
     const nearCeils = indexes.map(i => state.ceils[i]);
+    const ceil = state.ceils[index];
     if (
+      ceil.minesAround <= 0 ||
       nearCeils.filter(ceil => ceil.state === 'flag').length !==
-      state.ceils[index].minesAround
+        ceil.minesAround
     )
       return;
     const mineIndex = indexes.find(

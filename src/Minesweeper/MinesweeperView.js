@@ -67,16 +67,6 @@ function MineSweeperView({
       return;
     setMouseDownContent(true);
   }
-  function onMouseOverCeils(e) {
-    const index = Array.prototype.indexOf.call(
-      e.currentTarget.children,
-      e.target.closest('.mine__ceil'),
-    );
-    setOpenBehavior({
-      index,
-      behavior: openBehavior.behavior,
-    });
-  }
   useEffect(() => {
     const { index, behavior } = openBehavior;
     switch (behavior) {
@@ -93,7 +83,7 @@ function MineSweeperView({
       e.currentTarget.children,
       e.target.closest('.mine__ceil'),
     );
-    if (e.button === 2 && e.buttons === 2 && index >= 0) {
+    if (e.button === 2 && e.buttons === 2 && index !== -1) {
       changeCeilState(index);
     } else if (e.button === 0 && e.buttons === 1) {
       setOpenBehavior({
@@ -107,43 +97,50 @@ function MineSweeperView({
       });
     }
   }
-  function onMouseUpCeils(e) {
+  function onMouseOverCeils(e) {
+    const index = Array.prototype.indexOf.call(
+      e.currentTarget.children,
+      e.target.closest('.mine__ceil'),
+    );
+    setOpenBehavior({
+      index,
+      behavior: openBehavior.behavior,
+    });
+  }
+  function onMouseUpCeils() {
     const { behavior, index } = openBehavior;
+    if (index === -1) return;
     if (behavior === 'single') {
       openCeil(index);
     } else if (behavior === 'multi') {
       openCeils(index);
     }
-    setOpenBehavior({ index: -1, behavior: '' });
-  }
-  function onMouseUpContent() {
-    setMouseDownContent(false);
-  }
-  function closeOption(e) {
-    if (e.target.closest('.mine__top-bar__text')) return;
-    setOpenOption(null);
   }
   function hoverOption(option) {
     if (openOption) setOpenOption(option);
   }
+  function onMouseUp(e) {
+    setOpenBehavior({ index: -1, behavior: '' });
+    setMouseDownContent(false);
+    const option = e.target.closest('.mine__drop-down__title');
+    setOpenOption(option && option.textContent);
+  }
   useEffect(() => {
-    window.addEventListener('mouseup', onMouseUpContent);
-    window.addEventListener('click', closeOption);
+    window.addEventListener('mouseup', onMouseUp);
     return () => {
-      window.removeEventListener('mouseup', onMouseUpContent);
-      window.removeEventListener('click', closeOption);
+      window.removeEventListener('mouseup', onMouseUp);
     };
   }, []);
   return (
     <div className={className} onContextMenu={e => e.preventDefault()}>
       <div className="mine__drop-downs">
         <div
-          style={{ visibility: openOption === 'game' ? 'visible' : 'hidden' }}
+          style={{ visibility: openOption === 'Game' ? 'visible' : 'hidden' }}
           className="mine__drop-down"
         >
           <div className="mine__drop-down__title">Game</div>
           <div className="mine__drop-down__menu">
-            <div className="mine__drop-down__row" onClick={() => onReset()}>
+            <div className="mine__drop-down__row" onMouseUp={() => onReset()}>
               <div className="mine__drop-down__check" />
               <div className="mine__drop-down__text">New</div>
               <span className="mine__drop-down__hot-key">F2</span>
@@ -152,7 +149,7 @@ function MineSweeperView({
             <div className="mine__drop-down__separator" />
             <div
               className="mine__drop-down__row"
-              onClick={() => onReset('Beginner')}
+              onMouseUp={() => onReset('Beginner')}
             >
               <div className="mine__drop-down__check">
                 {difficulty === 'Beginner' && (
@@ -165,7 +162,7 @@ function MineSweeperView({
             </div>
             <div
               className="mine__drop-down__row"
-              onClick={() => onReset('Intermediate')}
+              onMouseUp={() => onReset('Intermediate')}
             >
               <div className="mine__drop-down__check">
                 {difficulty === 'Intermediate' && (
@@ -178,7 +175,7 @@ function MineSweeperView({
             </div>
             <div
               className="mine__drop-down__row"
-              onClick={() => onReset('Expert')}
+              onMouseUp={() => onReset('Expert')}
             >
               <div className="mine__drop-down__check">
                 {difficulty === 'Expert' && <img src={checked} alt="checked" />}
@@ -225,7 +222,7 @@ function MineSweeperView({
             </div>
             <div className="mine__drop-down__separator" />
 
-            <div className="mine__drop-down__row" onClick={onClose}>
+            <div className="mine__drop-down__row" onMouseUp={onClose}>
               <div className="mine__drop-down__check" />
               <span>Exit</span>
               <span className="mine__drop-down__hot-key" />
@@ -234,7 +231,7 @@ function MineSweeperView({
           </div>
         </div>
         <div
-          style={{ visibility: openOption === 'help' ? 'visible' : 'hidden' }}
+          style={{ visibility: openOption === 'Help' ? 'visible' : 'hidden' }}
           className="mine__drop-down"
         >
           <div className="mine__drop-down__title">Help</div>
@@ -269,15 +266,15 @@ function MineSweeperView({
       </div>
       <div className="mine__top-bar">
         <div
-          onClick={() => setOpenOption('game')}
-          onMouseOver={() => hoverOption('game')}
+          onMouseDown={() => setOpenOption('Game')}
+          onMouseOver={() => hoverOption('Game')}
           className="mine__top-bar__text"
         >
           Game
         </div>
         <div
-          onClick={() => setOpenOption('help')}
-          onMouseOver={() => hoverOption('help')}
+          onMouseDown={() => setOpenOption('Help')}
+          onMouseOver={() => hoverOption('Help')}
           className="mine__top-bar__text"
         >
           Help
@@ -399,6 +396,9 @@ const CeilBackgroundOpen = styled.div`
 
 export default styled(MineSweeperView)`
   display: inline-block;
+  img {
+    pointer-events: none;
+  }
   .mine__drop-downs {
     position: absolute;
     display: flex;
@@ -506,6 +506,7 @@ export default styled(MineSweeperView)`
     border-top: 1px solid rgb(128, 128, 128);
     border-left: 1px solid rgb(128, 128, 128);
     border-radius: 2px;
+    transform: translateX(1px);
   }
   .mine__face {
     border-radius: 2px;
@@ -524,7 +525,6 @@ export default styled(MineSweeperView)`
       border-width: 1px;
       border-color: rgb(128, 128, 128);
       img {
-        pointer-events: none;
         transform: translate(1px, 1px);
       }
       img:nth-child(1) {
