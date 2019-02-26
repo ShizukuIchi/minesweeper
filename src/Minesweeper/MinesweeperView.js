@@ -125,6 +125,15 @@ function MineSweeperView({
     const option = e.target.closest('.mine__drop-down__title');
     setOpenOption(option && option.textContent);
   }
+  function onTouchStartCeils(e) {
+    const index = Array.prototype.indexOf.call(
+      e.currentTarget.children,
+      e.target.closest('.mine__ceil'),
+    );
+    if (index !== -1) {
+      openCeil(index);
+    }
+  }
   useEffect(() => {
     window.addEventListener('mouseup', onMouseUp);
     return () => {
@@ -295,6 +304,7 @@ function MineSweeperView({
           className="mine__content__inner"
           onMouseDown={onMouseDownCeils}
           onMouseOver={onMouseOverCeils}
+          onTouchStart={onTouchStartCeils}
           onMouseUp={onMouseUpCeils}
         >
           <Ceils ceils={ceils} />

@@ -1,10 +1,18 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Minesweeper from './Minesweeper';
 
-class App extends Component {
-  render() {
-    return <Minesweeper />;
-  }
+function App() {
+  const [scale, setScale] = React.useState(1);
+  React.useEffect(() => {
+    if (window.innerWidth <= 768) {
+      setScale(2);
+    }
+  }, []);
+  return (
+    <div style={{ transform: `scale(${scale})` }}>
+      <Minesweeper defaultDifficulty="Intermediate" />
+    </div>
+  );
 }
 
 export default App;
