@@ -10,7 +10,7 @@ function App() {
   }, []);
   return (
     <div style={{ transform: `scale(${scale})` }}>
-      <Minesweeper defaultDifficulty="Intermediate" />
+      <Minesweeper defaultDifficulty="Beginner" />
     </div>
   );
 }

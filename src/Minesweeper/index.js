@@ -85,7 +85,12 @@ function reducer(state, action = {}) {
             ...ceil,
             state: 'misflagged',
           };
-        } else return ceil;
+        } else {
+          return {
+            ...ceil,
+            opening: false,
+          };
+        }
       });
       ceils[action.payload].state = 'die';
       return {
