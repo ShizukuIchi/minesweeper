@@ -9,6 +9,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
   box-sizing: border-box;
+  background-color: rgb(22, 22, 22);
 }
 
 code {
@@ -26,7 +27,6 @@ code {
 }
 
 #root {
-  background-color: rgb(22, 22, 22);
   height: 100%;
   flex-direction: column;
   display: flex;

@@ -34,6 +34,7 @@ function MineSweeperView({
   difficulty,
   openingCeil,
   openingCeils,
+  sameTouchPos,
 }) {
   const face = useRef(null);
   const [mouseDownContent, setMouseDownContent] = useState(false);
@@ -130,7 +131,7 @@ function MineSweeperView({
       e.currentTarget.children,
       e.target.closest('.mine__ceil'),
     );
-    if (index !== -1) {
+    if (index !== -1 && sameTouchPos) {
       openCeil(index);
     }
   }
@@ -304,7 +305,7 @@ function MineSweeperView({
           className="mine__content__inner"
           onMouseDown={onMouseDownCeils}
           onMouseOver={onMouseOverCeils}
-          onTouchStart={onTouchStartCeils}
+          onTouchEnd={onTouchStartCeils}
           onMouseUp={onMouseUpCeils}
         >
           <Ceils ceils={ceils} />

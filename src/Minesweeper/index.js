@@ -152,7 +152,7 @@ function reducer(state, action = {}) {
   }
 }
 
-function MineSweeper({ defaultDifficulty, onClose }) {
+function MineSweeper({ defaultDifficulty, onClose, sameTouchPos }) {
   const [state, dispatch] = useReducer(
     reducer,
     getInitState(defaultDifficulty),
@@ -236,6 +236,7 @@ function MineSweeper({ defaultDifficulty, onClose }) {
       seconds={seconds}
       openingCeil={openingCeil}
       openingCeils={openingCeils}
+      sameTouchPos={sameTouchPos}
     />
   );
 }
