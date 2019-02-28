@@ -1,8 +1,8 @@
 Minesweeper
 ==
 
-Windows XP minesweeper in web.
+A Windows XP minesweeper written in Javascript.
 
-![](https://i.imgur.com/yiiGsLw.png)
-![](https://i.imgur.com/KoLRuNY.png)
-![](https://i.imgur.com/OUZALx0.png)
+![](https://i.imgur.com/EoSzjCx.png)
+![](https://i.imgur.com/ryy5BiC.png)
+![](https://i.imgur.com/IdEUMu8.png)

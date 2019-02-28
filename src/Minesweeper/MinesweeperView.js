@@ -323,6 +323,17 @@ function MineSweeperView({
               <span className="mine__drop-down__hot-key" />
               <div className="mine__drop-down__arrow" />
             </div>
+            <div className="mine__drop-down__row">
+              <div className="mine__drop-down__check" />
+              <a
+                className="mine__drop-down__text"
+                href="https://github.com/ShizukuIchi/minesweeper"
+              >
+                Github
+              </a>
+              <span className="mine__drop-down__hot-key" />
+              <div className="mine__drop-down__arrow" />
+            </div>
           </div>
         </div>
       </div>
