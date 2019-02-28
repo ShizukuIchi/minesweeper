@@ -184,14 +184,18 @@ function MineSweeper({ defaultDifficulty, onClose, sameTouchPos }) {
     }
   }
   function openCeils(index) {
-    if (state.status !== 'started') return;
-    const indexes = getNearIndexes(index, state.rows, state.columns);
-    const nearCeils = indexes.map(i => state.ceils[i]);
     const ceil = state.ceils[index];
     if (
+      ceil.state !== 'open' ||
       ceil.minesAround <= 0 ||
+      state.status !== 'started'
+    )
+      return;
+    const indexes = getNearIndexes(index, state.rows, state.columns);
+    const nearCeils = indexes.map(i => state.ceils[i]);
+    if (
       nearCeils.filter(ceil => ceil.state === 'flag').length !==
-        ceil.minesAround
+      ceil.minesAround
     )
       return;
     const mineIndex = indexes.find(
