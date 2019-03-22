@@ -87,8 +87,11 @@ function MineSweeperView({
   openingCeil,
   openingCeils,
   sameTouchPos,
+  lastTouch,
 }) {
   const face = useRef(null);
+  const dropDown = useRef(null);
+  const topBar = useRef(null);
   const [mouseDownContent, setMouseDownContent] = useState(false);
   const [openOption, setOpenOption] = useState(null);
   const [openBehavior, setOpenBehavior] = useState({ index: -1, behavior: '' });
@@ -175,27 +178,38 @@ function MineSweeperView({
   function onMouseUp(e) {
     setOpenBehavior({ index: -1, behavior: '' });
     setMouseDownContent(false);
-    const option = e.target.closest('.mine__drop-down__title');
-    setOpenOption(option && option.textContent);
+    if (!dropDown.current.contains(e.target)) setOpenOption('');
   }
-  function onTouchStartCeils(e) {
+  function onTouchEndDropdown(e) {
+    if (
+      !dropDown.current.contains(e.target) &&
+      !topBar.current.contains(e.target)
+    )
+      setOpenOption('');
+  }
+  function onTouchEndCeils(e) {
     const index = Array.prototype.indexOf.call(
       e.currentTarget.children,
       e.target.closest('.mine__ceil'),
     );
-    if (index !== -1 && sameTouchPos) {
+    if (index === -1 || !sameTouchPos) return;
+    if (new Date() - lastTouch < 100) {
       openCeil(index);
+    } else {
+      changeCeilState(index);
     }
   }
   useEffect(() => {
+    window.addEventListener('touchend', onTouchEndDropdown);
     window.addEventListener('mouseup', onMouseUp);
     return () => {
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchend', onTouchEndDropdown);
     };
   }, []);
   return (
     <div className={className} onContextMenu={e => e.preventDefault()}>
-      <div className="mine__drop-downs">
+      <div className="mine__drop-downs" ref={dropDown}>
         <div
           style={{ visibility: openOption === 'Game' ? 'visible' : 'hidden' }}
           className="mine__drop-down"
@@ -212,6 +226,7 @@ function MineSweeperView({
             <div
               className="mine__drop-down__row"
               onMouseUp={() => onReset('Beginner')}
+              onTouchStart={() => onReset('Beginner')}
             >
               <div className="mine__drop-down__check">
                 {difficulty === 'Beginner' && (
@@ -225,6 +240,7 @@ function MineSweeperView({
             <div
               className="mine__drop-down__row"
               onMouseUp={() => onReset('Intermediate')}
+              onTouchStart={() => onReset('Intermediate')}
             >
               <div className="mine__drop-down__check">
                 {difficulty === 'Intermediate' && (
@@ -238,6 +254,7 @@ function MineSweeperView({
             <div
               className="mine__drop-down__row"
               onMouseUp={() => onReset('Expert')}
+              onTouchStart={() => onReset('Expert')}
             >
               <div className="mine__drop-down__check">
                 {difficulty === 'Expert' && <img src={checked} alt="checked" />}
@@ -337,9 +354,10 @@ function MineSweeperView({
           </div>
         </div>
       </div>
-      <div className="mine__top-bar">
+      <div className="mine__top-bar" ref={topBar}>
         <div
           onMouseDown={() => setOpenOption('Game')}
+          onTouchStart={() => setOpenOption(openOption ? '' : 'Game')}
           onMouseOver={() => hoverOption('Game')}
           className="mine__top-bar__text"
         >
@@ -347,6 +365,7 @@ function MineSweeperView({
         </div>
         <div
           onMouseDown={() => setOpenOption('Help')}
+          onTouchStart={() => setOpenOption(openOption ? '' : 'Help')}
           onMouseOver={() => hoverOption('Help')}
           className="mine__top-bar__text"
         >
@@ -370,7 +389,7 @@ function MineSweeperView({
           className="mine__content__inner"
           onMouseDown={onMouseDownCeils}
           onMouseOver={onMouseOverCeils}
-          onTouchEnd={onTouchStartCeils}
+          onTouchEnd={onTouchEndCeils}
           onMouseUp={onMouseUpCeils}
         >
           <Ceils ceils={ceils} />
@@ -541,8 +560,9 @@ export default styled(MineSweeperView)`
     line-height: 20px;
     font-size: 11px;
     &:hover {
-      color: white;
-      background-color: #0b61ff;
+      color: ${({ platform }) => (platform === 'desktop' ? '#FFF' : '#000')};
+      background-color: ${({ platform }) =>
+        platform === 'desktop' ? '#0b61ff' : 'transparent'};
     }
   }
   .mine__content {

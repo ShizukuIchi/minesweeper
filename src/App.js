@@ -2,16 +2,26 @@ import React from 'react';
 import Minesweeper from './Minesweeper';
 
 function App() {
-  const [scale, setScale] = React.useState(1);
+  const [platform, setPlatform] = React.useState(
+    window.innerWidth <= 768 ? 'mobile' : 'desktop',
+  );
+  const [lastTouch, setLastTouch] = React.useState(new Date());
   const [samePos, setSamePos] = React.useState(false);
   React.useEffect(() => {
-    if (window.innerWidth <= 768) {
-      setScale(2);
+    function onResize() {
+      if (window.innerWidth <= 768) {
+        setPlatform('mobile');
+      } else {
+        setPlatform('desktop');
+      }
     }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
   React.useEffect(() => {
     function touchStart() {
       setSamePos(true);
+      setLastTouch(new Date());
     }
     function touchMove() {
       setSamePos(false);
@@ -24,8 +34,43 @@ function App() {
     };
   }, []);
   return (
-    <div style={{ transform: `scale(${scale})` }}>
-      <Minesweeper defaultDifficulty="Beginner" sameTouchPos={samePos} />
+    <div
+      style={
+        platform === 'desktop'
+          ? {
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+            }
+          : {
+              display: 'flex',
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start',
+              height: '100%',
+            }
+      }
+    >
+      <div
+        style={
+          platform === 'desktop'
+            ? {
+                display: 'inline-block',
+              }
+            : {
+                transform: 'scale(1.8)',
+                transformOrigin: 'left top',
+                display: 'inline-block',
+              }
+        }
+      >
+        <Minesweeper
+          defaultDifficulty="Beginner"
+          sameTouchPos={samePos}
+          lastTouch={lastTouch}
+          platform={platform}
+        />
+      </div>
     </div>
   );
 }
