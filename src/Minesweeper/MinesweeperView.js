@@ -194,7 +194,11 @@ function MineSweeperView({
     );
     if (index === -1 || !sameTouchPos) return;
     if (new Date() - lastTouch < 100) {
-      openCeil(index);
+      if(ceils[index].state === 'open') {
+        openCeils(index)
+      } else {
+        openCeil(index);
+      }
     } else {
       changeCeilState(index);
     }
