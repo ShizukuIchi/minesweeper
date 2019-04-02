@@ -193,7 +193,7 @@ function MineSweeperView({
       e.target.closest('.mine__ceil'),
     );
     if (index === -1 || !sameTouchPos) return;
-    if (new Date() - lastTouch < 100) {
+    if (new Date() - lastTouch < 150) {
       if(ceils[index].state === 'open') {
         openCeils(index)
       } else {

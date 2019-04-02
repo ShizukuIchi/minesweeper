@@ -1,7 +1,8 @@
 {
   "name": "minesweeper",
-  "homepage": "https://sh1zuku.csie.io/minesweeper",
+  "homepage": "https://mines.now.sh",
   "version": "0.1.0",
+  "author": "sh1zuku <shizukuichi@gmail.com>",
   "dependencies": {
     "lodash.samplesize": "^4.2.0",
     "react": "^16.8.3",
@@ -14,8 +15,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "predeploy": "yarn build",
-    "deploy": "gh-pages -d build"
+    "now-build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -25,8 +25,5 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ],
-  "devDependencies": {
-    "gh-pages": "^2.0.1"
-  }
+  ]
 }
