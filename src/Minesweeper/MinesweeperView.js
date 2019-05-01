@@ -134,11 +134,7 @@ function MineSweeperView({
         openingCeil(-1);
     }
   }, [openBehavior.index, openBehavior.behavior]);
-  function onMouseDownCeils(e) {
-    const index = Array.prototype.indexOf.call(
-      e.currentTarget.children,
-      e.target.closest('.mine__ceil'),
-    );
+  function onMouseDownCeils(e, index) {
     if (e.button === 2 && e.buttons === 2 && index !== -1) {
       changeCeilState(index);
     } else if (e.button === 0 && e.buttons === 1) {
@@ -153,11 +149,7 @@ function MineSweeperView({
       });
     }
   }
-  function onMouseOverCeils(e) {
-    const index = Array.prototype.indexOf.call(
-      e.currentTarget.children,
-      e.target.closest('.mine__ceil'),
-    );
+  function onMouseOverCeils(index) {
     setOpenBehavior({
       index,
       behavior: openBehavior.behavior,
@@ -194,8 +186,8 @@ function MineSweeperView({
     );
     if (index === -1 || !sameTouchPos) return;
     if (new Date() - lastTouch < 150) {
-      if(ceils[index].state === 'open') {
-        openCeils(index)
+      if (ceils[index].state === 'open') {
+        openCeils(index);
       } else {
         openCeil(index);
       }
@@ -391,12 +383,14 @@ function MineSweeperView({
         </div>
         <div
           className="mine__content__inner"
-          onMouseDown={onMouseDownCeils}
-          onMouseOver={onMouseOverCeils}
           onTouchEnd={onTouchEndCeils}
           onMouseUp={onMouseUpCeils}
         >
-          <Ceils ceils={ceils} />
+          <Ceils
+            ceils={ceils}
+            onMouseDown={onMouseDownCeils}
+            onMouseEnter={onMouseOverCeils}
+          />
         </div>
       </section>
     </div>
@@ -405,7 +399,7 @@ function MineSweeperView({
 function getTextImg(index) {
   return [empty, open1, open2, open3, open4, open5, open6, open7, open8][index];
 }
-function Ceils({ ceils }) {
+function Ceils({ ceils, onMouseDown, onMouseEnter }) {
   function renderContent(ceil) {
     const { state, minesAround, opening } = ceil;
     switch (state) {
@@ -427,7 +421,13 @@ function Ceils({ ceils }) {
   }
 
   return ceils.map((ceil, index) => (
-    <div key={index} className="mine__ceil">
+    <div
+      key={index}
+      onMouseEnter={() => onMouseEnter(index)}
+      onMouseDown={e => onMouseDown(e, index)}
+      className="mine__ceil"
+      index={index}
+    >
       {renderContent(ceil)}
     </div>
   ));
